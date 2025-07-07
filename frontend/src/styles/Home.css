@@ -123,3 +123,70 @@
 .error-text {
   margin: 0;
 }
+.like-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #e0245e;
+  font-weight: 700;
+  margin-right: 10px;
+}
+
+.like-button:hover {
+  text-decoration: underline;
+}
+
+.comment {
+  padding: 0.3rem 0;
+  border-bottom: 1px solid #e1e8ed;
+}
+
+.comment-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.comment-form input {
+  flex-grow: 1;
+  padding: 0.3rem 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid #e1e8ed;
+}
+
+.comment-form button {
+  border-radius: 9999px;
+  border: none;
+  background-color: #1da1f2;
+  color: white;
+  font-weight: 700;
+  padding: 0 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.comment-form button:hover {
+  background-color: #0d8ddb;
+}
+
+.no-comments {
+  color: #657786;
+  font-style: italic;
+}
+.logout-button {
+  background-color: #1da1f2; /* Twitter mavisi */
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  font-weight: bold;
+  border-radius: 9999px;
+  cursor: pointer;
+  float: right;
+  margin-bottom: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #0d8ddb;
+}
+

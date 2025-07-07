@@ -1,15 +1,24 @@
 import { useState, useEffect } from "react";
 import api from "../api";
+import { useNavigate } from "react-router-dom";
 import "../styles/Home.css";
 
 function Home() {
+  const navigate = useNavigate();
   const [tweets, setTweets] = useState([]);
   const [content, setContent] = useState("");
+  const [commentContent, setCommentContent] = useState({});
   const [errors, setErrors] = useState([]);
+  
 
   useEffect(() => {
     fetchTweets();
   }, []);
+
+  const handleLogout = () => {
+    localStorage.clear();  // Tokenları temizle
+    navigate("/login");    // Login sayfasına yönlendir
+  };
 
   const fetchTweets = () => {
     api
@@ -30,7 +39,7 @@ function Home() {
     }
 
     api
-      .post("/api/notes/", { title: "Tweet", content })  // Twitter posts don't have title, so fixed as "Tweet"
+      .post("/api/notes/", { title: "Tweet", content })
       .then((res) => {
         if (res.status === 201) {
           fetchTweets();
@@ -57,19 +66,47 @@ function Home() {
       .catch(() => setErrors(["Server error: unable to delete tweet."]));
   };
 
+  const postComment = (tweetId) => {
+    if (!commentContent[tweetId]?.trim()) return;
+    api
+      .post("/api/comments/", { note: tweetId, content: commentContent[tweetId] })
+      .then((res) => {
+        fetchTweets();
+        setCommentContent((prev) => ({ ...prev, [tweetId]: "" }));
+      })
+      .catch(() => setErrors(["Failed to post comment."]));
+  };
+
+  const toggleLike = (tweetId) => {
+    api
+      .post("/api/notes/like/", { note: tweetId })
+      .then(() => {
+        fetchTweets();
+      })
+      .catch(() => setErrors(["Failed to update like."]));
+  };
+
   return (
     <div className="container">
+         <button className="logout-button" onClick={handleLogout} >
+        Logout
+      </button>
       <header className="header">
         <h1>Twitter 🐦</h1>
-      </header>
+        
+        </header>
+    
 
       <section className="tweet-box-section">
         <h2>What's happening?</h2>
+        
 
         {errors.length > 0 && (
           <div className="alert alert-danger">
             {errors.map((err, i) => (
-              <p key={i} className="error-text">{err}</p>
+              <p key={i} className="error-text">
+                {err}
+              </p>
             ))}
           </div>
         )}
@@ -97,19 +134,50 @@ function Home() {
                 <p>{tweet.content}</p>
               </div>
               <div className="tweet-actions">
-                <button className="delete-button" onClick={() => deleteTweet(tweet.id)}>
+                <button
+                  className="like-button"
+                  onClick={() => toggleLike(tweet.id)}
+                >
+                  ❤️ {tweet.likes_count || 0}
+                </button>
+                <button
+                  className="delete-button"
+                  onClick={() => deleteTweet(tweet.id)}
+                >
                   🗑️ Delete
                 </button>
               </div>
 
               <div className="comments-section">
                 <h3>Comments</h3>
-                <div className="no-comments">Comment system coming soon.</div>
-                <form className="comment-form">
-                  <input type="text" placeholder="Add a comment..." disabled />
-                  <button type="submit" disabled>
-                    Comment
-                  </button>
+                {tweet.comments.length === 0 && (
+                  <p className="no-comments">No comments yet.</p>
+                )}
+                {tweet.comments.map((comment) => (
+                  <div key={comment.id} className="comment">
+                    <strong>{comment.author_username}</strong>: {comment.content}
+                  </div>
+                ))}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    postComment(tweet.id);
+                  }}
+                  className="comment-form"
+                >
+                  <input
+                    type="text"
+                    placeholder="Add a comment..."
+                    value={commentContent[tweet.id] || ""}
+                    onChange={(e) =>
+                      setCommentContent((prev) => ({
+                        ...prev,
+                        [tweet.id]: e.target.value,
+                      }))
+                    }
+                  />
+                  <button type="submit">Comment</button>
+                  
                 </form>
               </div>
             </div>

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Note
+from .models import Note, Comment, Like
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -13,8 +13,26 @@ class UserSerializer(serializers.ModelSerializer):
         return user
     
     
+class CommentSerializer(serializers.ModelSerializer):
+    author_username = serializers.ReadOnlyField(source='author.username')
+    
+    class Meta:
+        model = Comment
+        fields = ['id', 'content', 'author_username', 'created_at']
+
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = ['id', 'user']
+    
 class NoteSerializer(serializers.ModelSerializer):
+    comments = CommentSerializer(many=True, read_only=True)
+    likes_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Note
-        fields = ["id", "title", "content", "created_at", "author"]
+        fields = ["id", "title", "content", "created_at", "author", "comments", "likes_count"]
         extra_kwargs = {"author": {"read_only": True}}
+
+    def get_likes_count(self, obj):
+        return obj.likes.count()
