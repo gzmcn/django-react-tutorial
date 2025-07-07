@@ -31,6 +31,14 @@ class NoteDelete(generics.DestroyAPIView):
         user = self.request.user
         return Note.objects.filter(author=user)
     
+class NoteUpdate(generics.UpdateAPIView):
+    serializer_class = NoteSerializer
+    permission_classes = [IsAuthenticated]  # only authenticated users can update notes
+    
+    def get_queryset(self):
+        user = self.request.user
+        return Note.objects.filter(author=user)
+    
 class CommentCreate(generics.CreateAPIView):
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticated]

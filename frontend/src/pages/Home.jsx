@@ -9,15 +9,17 @@ function Home() {
   const [content, setContent] = useState("");
   const [commentContent, setCommentContent] = useState({});
   const [errors, setErrors] = useState([]);
-  
+  const [editTweetId, setEditTweetId] = useState(null); // editNoteId değil
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
 
   useEffect(() => {
     fetchTweets();
   }, []);
 
   const handleLogout = () => {
-    localStorage.clear();  // Tokenları temizle
-    navigate("/login");    // Login sayfasına yönlendir
+    localStorage.clear();
+    navigate("/login");
   };
 
   const fetchTweets = () => {
@@ -70,7 +72,7 @@ function Home() {
     if (!commentContent[tweetId]?.trim()) return;
     api
       .post("/api/comments/", { note: tweetId, content: commentContent[tweetId] })
-      .then((res) => {
+      .then(() => {
         fetchTweets();
         setCommentContent((prev) => ({ ...prev, [tweetId]: "" }));
       })
@@ -86,20 +88,48 @@ function Home() {
       .catch(() => setErrors(["Failed to update like."]));
   };
 
+  const startEdit = (tweet) => {
+    setEditTweetId(tweet.id);
+    setEditTitle(tweet.title || ""); // tweet.title kullanmak istersen
+    setEditContent(tweet.content);
+  };
+
+  const cancelEdit = () => {
+    setEditTweetId(null);
+    setEditTitle("");
+    setEditContent("");
+  };
+
+  const saveEdit = (id) => {
+    if (!editTitle.trim() || !editContent.trim()) {
+      setErrors(["Title and content cannot be empty."]);
+      return;
+    }
+    api
+      .put(`/api/notes/update/${id}/`, { title: editTitle, content: editContent })
+      .then((res) => {
+        if (res.status === 200) {
+          fetchTweets();
+          cancelEdit();
+          setErrors([]);
+        } else {
+          setErrors(["Failed to update note."]);
+        }
+      })
+      .catch(() => setErrors(["Server error updating note."]));
+  };
+
   return (
     <div className="container">
-         <button className="logout-button" onClick={handleLogout} >
+      <button className="logout-button" onClick={handleLogout}>
         Logout
       </button>
       <header className="header">
         <h1>Twitter 🐦</h1>
-        
-        </header>
-    
+      </header>
 
       <section className="tweet-box-section">
         <h2>What's happening?</h2>
-        
 
         {errors.length > 0 && (
           <div className="alert alert-danger">
@@ -130,23 +160,44 @@ function Home() {
         <div className="timeline">
           {tweets.map((tweet) => (
             <div className="tweet-post" key={tweet.id}>
-              <div className="tweet-content">
-                <p>{tweet.content}</p>
-              </div>
-              <div className="tweet-actions">
-                <button
-                  className="like-button"
-                  onClick={() => toggleLike(tweet.id)}
-                >
-                  ❤️ {tweet.likes_count || 0}
-                </button>
-                <button
-                  className="delete-button"
-                  onClick={() => deleteTweet(tweet.id)}
-                >
-                  🗑️ Delete
-                </button>
-              </div>
+              {editTweetId === tweet.id ? (
+                <>
+                  <textarea
+                    className="tweet-input"
+                    value={editContent}
+                    onChange={(e) => setEditContent(e.target.value)}
+                    maxLength={280}
+                  />
+                  <button onClick={() => saveEdit(tweet.id)}>Save</button>
+                  <button onClick={cancelEdit}>Cancel</button>
+                </>
+              ) : (
+                <>
+                  <div className="tweet-content">
+                    <p>{tweet.content}</p>
+                  </div>
+                  <div className="tweet-actions">
+                    <button
+                      className="like-button"
+                      onClick={() => toggleLike(tweet.id)}
+                    >
+                      ❤️ {tweet.likes_count || 0}
+                    </button>
+                    <button
+                      className="update-button"
+                      onClick={() => startEdit(tweet)}
+                    >
+                      ✏️ Edit
+                    </button>
+                    <button
+                      className="delete-button"
+                      onClick={() => deleteTweet(tweet.id)}
+                    >
+                      🗑️ Delete
+                    </button>
+                  </div>
+                </>
+              )}
 
               <div className="comments-section">
                 <h3>Comments</h3>
@@ -177,7 +228,6 @@ function Home() {
                     }
                   />
                   <button type="submit">Comment</button>
-                  
                 </form>
               </div>
             </div>
