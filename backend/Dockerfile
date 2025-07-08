@@ -11,6 +11,6 @@ RUN pip install -r requirements.txt
 COPY manage.py .
 COPY backend backend/
 
-EXPOSE 8000
+EXPOSE 10000
 
 CMD ["sh", "-c", "python manage.py runserver 0.0.0.0:$PORT"]
