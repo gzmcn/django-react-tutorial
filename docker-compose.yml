@@ -1,6 +1,17 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   backend:
     build:
       context: .
@@ -11,6 +22,7 @@ services:
       - "8000:8000"
     environment:
       - DEBUG=True
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/mydb
     depends_on:
       - db
 
@@ -29,17 +41,6 @@ services:
       - backend
     stdin_open: true
     tty: true
-
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: mydb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
 
 volumes:
   pgdata:

@@ -49,9 +49,18 @@ class CommentCreate(generics.CreateAPIView):
         serializer.save(author=self.request.user, note=note)
     
 class CreateUserView(generics.CreateAPIView):
-    queryset = User.objects.all() # when creating user look for all users, to not create duplicates
+    queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny] # allow any user to create a new user
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
