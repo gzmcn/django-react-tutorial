@@ -146,3 +146,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWS_CREDENTIALS = True
 
+CORS_ALLOWED_ORIGINS = [
+    "https://kpnxx007-5173.euw.devtunnels.ms",  # Add your devtunnel domain
+]
+

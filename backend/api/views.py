@@ -60,7 +60,7 @@ def like_note(request):
     note = Note.objects.get(id=note_id)
     like, created = Like.objects.get_or_create(note=note, user=request.user)
     if not created:
-        # Like zaten varsa, sil (toggle)
+        # like zaten varsa, sil
         like.delete()
         return Response({"liked": False})
     return Response({"liked": True})
