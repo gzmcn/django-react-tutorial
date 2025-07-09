@@ -10,17 +10,35 @@ from .models import Note, Comment, Like
 from .serializers import NoteSerializer, CommentSerializer, LikeSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework import status
 
 class NoteListCreate(generics.ListCreateAPIView):
     serializer_class = NoteSerializer
-    permission_classes = [IsAuthenticated]  # only authenticated users can access this view
-    
+    permission_classes = [IsAuthenticated]
+
     def get_queryset(self):
         user = self.request.user
-        return Note.objects  # filter notes by the authenticated user
-    
+        queryset = Note.objects.all()  # get all notes
+
+        hashtag = self.request.query_params.get('hashtag')
+        if hashtag:
+            hashtag = f"#{hashtag.lower()}"
+            queryset = queryset.filter(content__icontains=hashtag)
+
+        return queryset
+
     def perform_create(self, serializer):
-       serializer.save(author=self.request.user)
+        serializer.save(author=self.request.user)
+        
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        else:
+            print("Serializer errors:", serializer.errors)  # <<<<< This line to debug
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
             
 class NoteDelete(generics.DestroyAPIView):

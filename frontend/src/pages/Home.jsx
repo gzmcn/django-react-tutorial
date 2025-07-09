@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 import "../styles/Home.css";
+import { formatDistanceToNow } from "date-fns";
 
 function Home() {
   const navigate = useNavigate();
@@ -14,6 +15,41 @@ function Home() {
   const [editContent, setEditContent] = useState("");
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null); 
+  const [sortOrder, setSortOrder] = useState("newest");
+
+
+  function getColorFromUsername(username) {
+    const colors = ["#1DA1F2", "#17BF63", "#F45D22", "#794BC4", "#E0245E", "#FFAD1F"];
+    let hash = 0;
+    for (let i = 0; i < username.length; i++) {
+      hash = username.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % colors.length;
+    return colors[index];
+  }
+
+  function parseHashtags(text) {
+    const hashtagRegex = /#[\wğüşöçİĞÜŞÖÇ]+/gi;
+    return text.split(hashtagRegex).reduce((acc, part, index, arr) => {
+      acc.push(part);
+  
+      const match = text.match(hashtagRegex);
+      if (match && match[index]) {
+        const tag = match[index].substring(1); // remove #
+        acc.push(
+          <a
+            key={index}
+            href={`/hashtag/${tag.toLowerCase()}`}
+            className="hashtag-link"
+          >
+            #{tag}
+          </a>
+        );
+      }
+  
+      return acc;
+    }, []);
+  }
 
   useEffect(() => {
     fetchTweets();
@@ -64,6 +100,7 @@ function Home() {
   
     api
       .post("/api/notes/", formData, {
+        title: "Tweet",
         headers: { "Content-Type": "multipart/form-data" },
       })
       .then((res) => {
@@ -211,8 +248,23 @@ function Home() {
 
       <section className="timeline-section">
         <h2>Timeline</h2>
+
+        <div className="sort-options">
+        <label>Sort by:</label>
+        <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+        </select>
+      </div>
+
         <div className="timeline">
-          {tweets.map((tweet) => (
+        {[...tweets]
+              .sort((a, b) => {
+                const timeA = new Date(a.created_at).getTime();
+                const timeB = new Date(b.created_at).getTime();
+                return sortOrder === "newest" ? timeB - timeA : timeA - timeB;
+              })
+              .map((tweet) => (
             <div className="tweet-post" key={tweet.id}>
               {editTweetId === tweet.id ? (
                 <>
@@ -224,6 +276,18 @@ function Home() {
                   />
                   <button onClick={() => saveEdit(tweet.id)}>Save</button>
                   <button onClick={cancelEdit}>Cancel</button>
+
+                  <div className="sort-options">
+                        <label>Sort by:</label>
+                        <select
+                          value={sortOrder}
+                          onChange={(e) => setSortOrder(e.target.value)}
+                        >
+                          <option value="newest">Newest</option>
+                          <option value="oldest">Oldest</option>
+                        </select>
+                      </div>
+
                 </>
               ) : (
                 <>
@@ -234,18 +298,27 @@ function Home() {
                           alt="Avatar"
                           className="tweet-avatar"
                         />
-                        <strong className="tweet-username">@{tweet.author_username}</strong>
+                        <strong className="tweet-username"
+                            style={{ color: getColorFromUsername(tweet.author_username) }}
+                        >@{tweet.author_username}</strong>
                       </div>
 
-                  <div className="tweet-content">
-                    <p>{tweet.content}</p>
+                      <span className="tweet-timestamp">
+                          • {formatDistanceToNow(new Date(tweet.created_at))} ago
+                        </span>
 
-                      {tweet.image && (
-                      <img
-                        src={tweet.image}
-                        alt="Tweet"
-                        className="tweet-image"
-                      />
+                  <div className="tweet-content">
+                  <p>{parseHashtags(tweet.content)}</p>
+
+                        {tweet.image && (
+                        <img
+                            src={tweet.image} // use it directly, no prepend
+                            alt="Tweet"
+                            className="tweet-image"
+                          
+                        />
+                      
+                   
                     )}
 
                   </div>
