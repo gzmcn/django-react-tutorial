@@ -1,6 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import User
 from .validators import validate_file_size
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="custom_profile")
+    bio = models.TextField(blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s profile"
 
 class Note(models.Model):
     title = models.CharField(max_length=100)
@@ -25,3 +37,20 @@ class Like(models.Model):
     
     def __str__(self):
         return self.title
+    
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="custom_userprofile")
+    bio = models.TextField(blank=True, null=True)
+    profile_image = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    
+    def __str__(self):
+        return f"{self.user.username} Profile"
+    
+    
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+    
+    

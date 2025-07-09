@@ -71,4 +71,48 @@
     padding: 20px;
   }
   
+  .profile-header {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .avatar-large {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+  }
+  
+  .upload-profile-image-btn {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background: #1da1f2;
+    border-radius: 50%;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  
+  .profile-header:hover .upload-profile-image-btn {
+    opacity: 1;
+  }
+  
+  .profile-bio-container {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .profile-bio {
+    white-space: pre-wrap;
+    margin: 0;
+    font-size: 1rem;
+    color: #8899a6;
+  }
   

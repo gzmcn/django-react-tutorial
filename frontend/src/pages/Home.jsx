@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 import "../styles/Home.css";
 import { formatDistanceToNow } from "date-fns";
 import { FaPaperclip } from "react-icons/fa";
+import { FaHeart, FaEdit, FaTrash } from "react-icons/fa";
 import ProfilePage from "./Profile";
 
 function Home() {
@@ -54,6 +55,42 @@ function Home() {
   
       return acc;
     }, []);
+  }
+
+  const iconButtonStyle = {
+    cursor: "pointer",
+    color: "#E42867FF",               
+    border: "1px solid #15202b",   
+    backgroundColor: "#15202b", 
+    padding: "6px 12px",
+    borderRadius: "20px",
+    fontWeight: 600,
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
+    userSelect: "none",
+    transition: "background-color 0.2s ease, color 0.2s ease",
+  };
+  
+  const iconButtonHoverStyle = {
+    backgroundColor: "#15202b",  
+    color: "#fff",              
+  };
+
+  function IconButton({ icon, label, onClick }) {
+    const [hover, setHover] = React.useState(false);
+    return (
+      <button
+        style={{ ...iconButtonStyle, ...(hover ? iconButtonHoverStyle : {}) }}
+        onClick={onClick}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        type="button"
+      >
+        {icon}
+        {label}
+      </button>
+    );
   }
 
   useEffect(() => {
@@ -212,18 +249,19 @@ function Home() {
   return (
     <>
       <div className="main-layout">
-
-      <div className="left-sidebar">
-    <div className="user-card">
-      <a href={`/profile/${user?.username}`}>
-        <img src="/profile.png" alt="avatar" className="avatar-img" />
-      </a>
-      <a href={`/profile/${user?.username}`} className="nickname">
-                 @{user?.username}
-                  </a>
-            </div>
+        {/* Left Sidebar */}
+        <div className="left-sidebar">
+          <div className="user-card">
+            <a href={`/profile/${user?.username}`}>
+              <img src="/profile.png" alt="avatar" className="avatar-img" />
+            </a>
+            <a href={`/profile/${user?.username}`} className="nickname">
+              @{user?.username}
+            </a>
           </div>
-
+        </div>
+  
+        {/* Left Panel */}
         <div className="left-panel">
           <button className="logout-button" onClick={handleLogout}>
             Logout
@@ -232,6 +270,7 @@ function Home() {
             <h1>Twitter 🐦</h1>
           </header>
   
+          {/* Tweet Box */}
           <section className="tweet-box-section">
             <h2>What's happening?</h2>
   
@@ -272,19 +311,19 @@ function Home() {
                   </button>
                 </div>
               )}
-                
+  
               {!image && (
-              <label className="custom-file-upload">
-                <FaPaperclip style={{ marginRight: "8px" }} />
-                Dosya Seç
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  style={{ display: "none" }}
-                />
-              </label>
-            )}
+                <label className="custom-file-upload">
+                  <FaPaperclip style={{ marginRight: "8px" }} />
+                  Dosya Seç
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    style={{ display: "none" }}
+                  />
+                </label>
+              )}
   
               <button type="submit" className="tweet-button">
                 Tweet
@@ -292,6 +331,7 @@ function Home() {
             </form>
           </section>
   
+          {/* Timeline */}
           <section className="timeline-section">
             <h2>Timeline</h2>
   
@@ -337,22 +377,26 @@ function Home() {
                     ) : (
                       <>
                         <div className="tweet-author">
-                          <img
-                            src="/profile.png"
-                            alt="Avatar"
-                            className="tweet-avatar"
-                          />
-                          <strong
+                          <a href={`/profile/${tweet.author_username}`}>
+                            <img
+                              src="/profile.png"
+                              alt="Avatar"
+                              className="tweet-avatar"
+                            />
+                          </a>
+                          <a
+                            href={`/profile/${tweet.author_username}`}
                             className="tweet-username"
                             style={{ color: getColorFromUsername(tweet.author_username) }}
                           >
-                            @{tweet.author_username}
-                          </strong>
+                            <strong>
+                              @{tweet.author_username}
+                            </strong>
+                          </a>
+                          <span className="tweet-timestamp">
+                            • {formatDistanceToNow(new Date(tweet.created_at))} ago
+                          </span>
                         </div>
-  
-                        <span className="tweet-timestamp">
-                          • {formatDistanceToNow(new Date(tweet.created_at))} ago
-                        </span>
   
                         <div className="tweet-content">
                           <p>{parseHashtags(tweet.content)}</p>
@@ -365,19 +409,26 @@ function Home() {
                             />
                           )}
                         </div>
+  
                         <div className="tweet-actions">
-                          <button className="like-button" onClick={() => toggleLike(tweet.id)}>
-                            ❤️ {tweet.likes_count || 0}
-                          </button>
-                          <button className="update-button" onClick={() => startEdit(tweet)}>
-                            ✏️ Edit
-                          </button>
-                          <button className="delete-button" onClick={() => deleteTweet(tweet.id)}>
-                            🗑️ Delete
-                          </button>
-                        </div>
-                      </>
-                    )}
+                        <IconButton
+                                icon={<FaHeart />}
+                                label={`Like ${tweet.likes_count || 0}`}
+                                onClick={() => toggleLike(tweet.id)}
+                              />
+                          <IconButton
+                                    icon={<FaEdit />}
+                                    label="Edit"
+                                    onClick={() => startEdit(tweet)}
+                                  />
+                                  <IconButton
+                                    icon={<FaTrash />}
+                                    label="Delete"
+                                    onClick={() => deleteTweet(tweet.id)}
+                                  />
+                                  </div>
+                             </>
+                         )}
   
                     <div className="comments-section">
                       <h3>Comments</h3>
@@ -414,6 +465,7 @@ function Home() {
           </section>
         </div>
   
+        {/* Right Panel */}
         <div className="right-panel">
           <div className="hashtag-panel">
             <h3>Trending Hashtags</h3>
@@ -430,6 +482,7 @@ function Home() {
       </div>
     </>
   );
+  
   
 }
 

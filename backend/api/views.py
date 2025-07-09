@@ -1,18 +1,18 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import generics
-from .serializers import UserSerializer, CommentSerializer, LikeSerializer
+from .serializers import UserSerializer, CommentSerializer, LikeSerializer, UserProfileSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Note
+from .models import Note, Profile
 from .serializers import NoteSerializer
 from rest_framework import generics, permissions
 from .models import Note, Comment, Like
-from .serializers import NoteSerializer, CommentSerializer, LikeSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 import re
 from collections import Counter
+from rest_framework.views import APIView
 
 class NoteListCreate(generics.ListCreateAPIView):
     serializer_class = NoteSerializer
@@ -80,6 +80,24 @@ class CreateUserView(generics.CreateAPIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+class UserProfileUpdateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        profile, created = Profile.objects.get_or_create(user=request.user)
+        serializer = UserProfileSerializer(profile)
+        return Response(serializer.data)
+
+    def put(self, request):
+        profile = request.user.custom_profile
+        serializer = UserProfileSerializer(profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
     
     
 @api_view(['POST'])
