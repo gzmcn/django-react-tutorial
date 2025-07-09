@@ -24,7 +24,7 @@ function HashtagPage() {
       .catch(() => setErrors(["Failed to fetch tweets."]));
   }, [tag]);
 
-  const saveEdit = (id) => {
+  const saveEdit = () => {
     // Optional: implement if editing allowed
   };
 

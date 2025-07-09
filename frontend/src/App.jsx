@@ -7,6 +7,7 @@ import Register from "./pages/Register.jsx"
 import NotFound from "./pages/NotFound.jsx"
 import ProtectedRoute from "./components/ProtectedRoute.jsx"
 import HashtagPage from "./components/HashtagPage.jsx"
+import ProfilePage from "./pages/Profile.jsx"
 
 
 function Logout(){
@@ -30,6 +31,7 @@ function App() {
         <Route path="/hashtag/:tag" element={<HashtagPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<RegisterAndLogout />} />
+        <Route path="/profile/:username" element={<ProfilePage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

@@ -115,3 +115,26 @@ def trending_hashtags(request):
     )
 
     return Response(sorted_tags)
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def user_profile(request, username):
+    try:
+        user = User.objects.get(username=username)
+        tweets = Note.objects.filter(author=user).order_by('-created_at')
+        serializer = NoteSerializer(tweets, many=True)
+        return Response({
+            "user": {
+                "username": user.username,
+            },
+            "tweets": serializer.data
+        })
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def get_current_user(request):
+    user = request.user
+    return Response({ "username": user.username})

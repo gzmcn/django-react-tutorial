@@ -1,0 +1,74 @@
+.left-sidebar {
+    width: 200px;
+    margin-left: 20px;
+  }
+  
+  .user-card {
+    background-color: #192734;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+  }
+  
+  .avatar-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+  }
+  
+  .nickname {
+    display: block;
+    margin-top: 8px;
+    font-weight: bold;
+    color: #1da1f2;
+    text-decoration: none;
+  }
+  .nickname:hover {
+    text-decoration: underline;
+  }
+  
+  .avatar-large {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+  }
+
+  .tweet-image {
+    max-width: 400px !important;
+    max-height: 200px !important;
+    width: auto !important;
+    height: auto !important;
+    border-radius: 12px !important;
+    margin-top: 0.5rem !important;
+    border: 1px solid #38444d !important;
+    display: block !important;
+  }
+  .profile-tweets {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .tweet-layout {
+    width: 600px;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+ 
+  .tweet-post {
+    background-color: #15202b;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #38444d;
+  }
+  .profile-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 20px;
+  }
+  
+  

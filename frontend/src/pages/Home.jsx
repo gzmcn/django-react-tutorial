@@ -3,6 +3,8 @@ import api from "../api";
 import { useNavigate } from "react-router-dom";
 import "../styles/Home.css";
 import { formatDistanceToNow } from "date-fns";
+import { FaPaperclip } from "react-icons/fa";
+import ProfilePage from "./Profile";
 
 function Home() {
   const navigate = useNavigate();
@@ -17,6 +19,7 @@ function Home() {
   const [imagePreview, setImagePreview] = useState(null); 
   const [sortOrder, setSortOrder] = useState("newest");
   const [hashtags, setHashtags] = useState([]);
+  const [user, setUser] = useState(null);
   
 
 
@@ -32,7 +35,7 @@ function Home() {
 
   function parseHashtags(text) {
     const hashtagRegex = /#[\wğüşöçİĞÜŞÖÇ]+/gi;
-    return text.split(hashtagRegex).reduce((acc, part, index, arr) => {
+    return text.split(hashtagRegex).reduce((acc, part, index) => {
       acc.push(part);
   
       const match = text.match(hashtagRegex);
@@ -52,6 +55,12 @@ function Home() {
       return acc;
     }, []);
   }
+
+  useEffect(() => {
+    api.get("/api/me/")  // We'll define this endpoint below
+      .then((res) => setUser(res.data))
+      .catch(() => console.log("Failed to fetch user"));
+  }, []);
 
   useEffect(() => {
     fetchTweets();
@@ -203,6 +212,18 @@ function Home() {
   return (
     <>
       <div className="main-layout">
+
+      <div className="left-sidebar">
+    <div className="user-card">
+      <a href={`/profile/${user?.username}`}>
+        <img src="/profile.png" alt="avatar" className="avatar-img" />
+      </a>
+      <a href={`/profile/${user?.username}`} className="nickname">
+                 @{user?.username}
+                  </a>
+            </div>
+          </div>
+
         <div className="left-panel">
           <button className="logout-button" onClick={handleLogout}>
             Logout
@@ -251,15 +272,19 @@ function Home() {
                   </button>
                 </div>
               )}
-  
+                
               {!image && (
+              <label className="custom-file-upload">
+                <FaPaperclip style={{ marginRight: "8px" }} />
+                Dosya Seç
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="image-input"
+                  style={{ display: "none" }}
                 />
-              )}
+              </label>
+            )}
   
               <button type="submit" className="tweet-button">
                 Tweet
