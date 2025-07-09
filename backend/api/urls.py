@@ -1,5 +1,7 @@
 from django.urls import path
 from .views import NoteListCreate, CommentCreate, like_note, NoteDelete, NoteUpdate
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("notes/", NoteListCreate.as_view(), name="note-list"),
@@ -7,4 +9,4 @@ urlpatterns = [
     path('comments/', CommentCreate.as_view()),
     path('notes/like/', like_note),
     path("notes/update/<int:pk>/", NoteUpdate.as_view(), name="update-note"),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

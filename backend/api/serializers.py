@@ -28,10 +28,11 @@ class LikeSerializer(serializers.ModelSerializer):
 class NoteSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True, read_only=True)
     likes_count = serializers.SerializerMethodField()
+    author_username = serializers.ReadOnlyField(source='author.username')
 
     class Meta:
         model = Note
-        fields = ["id", "title", "content", "created_at", "author", "comments", "likes_count"]
+        fields = ["id", "title", "content", "created_at", "author", "author_username", "comments", "likes_count"]
         extra_kwargs = {"author": {"read_only": True}}
 
     def get_likes_count(self, obj):

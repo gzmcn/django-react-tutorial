@@ -22,7 +22,7 @@ services:
       - "8000:8000"
     environment:
       - DEBUG=True
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/mydb
+      - DATABASE_URL=postgres://postgres:1234@db:5432/mydb
     depends_on:
       - db
 

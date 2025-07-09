@@ -12,6 +12,8 @@ function Home() {
   const [editTweetId, setEditTweetId] = useState(null); // editNoteId değil
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
+  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null); 
 
   useEffect(() => {
     fetchTweets();
@@ -33,19 +35,43 @@ function Home() {
       .catch(() => setErrors(["Failed to fetch tweets."]));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+  
+    if (file.size > 2 * 1024 * 1024) {
+      setErrors(["Image must be smaller than 2MB."]);
+      return;
+    }
+  
+    setImage(file);
+    setImagePreview(URL.createObjectURL(file));
+    setErrors([]);
+  };
+
+
   const postTweet = (e) => {
     e.preventDefault();
     if (!content.trim()) {
       setErrors(["Tweet content cannot be empty."]);
       return;
     }
-
+  
+    const formData = new FormData();
+    formData.append("title", "Tweet");
+    formData.append("content", content);
+    if (image) formData.append("image", image);
+  
     api
-      .post("/api/notes/", { title: "Tweet", content })
+      .post("/api/notes/", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
       .then((res) => {
         if (res.status === 201) {
           fetchTweets();
           setContent("");
+          setImage(null);
+          setImagePreview(null);
           setErrors([]);
         } else {
           setErrors(["Failed to post tweet."]);
@@ -141,7 +167,7 @@ function Home() {
           </div>
         )}
 
-        <form onSubmit={postTweet} className="tweet-form">
+        <form onSubmit={postTweet} className="tweet-form" encType="multipart/form-data">
           <textarea
             className="tweet-input"
             placeholder="What's happening?"
@@ -149,6 +175,34 @@ function Home() {
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
+
+          {imagePreview && (
+            <div className="image-preview-container">
+              <img src={imagePreview} alt="Preview" className="image-preview" />
+              <p style={{ color: "#8899a6", fontSize: "0.9rem" }}>Image selected. Can't change unless removed.</p>
+              {/* Optional: button to remove image */}
+              <button
+                type="button"
+                onClick={() => {
+                  setImage(null);
+                  setImagePreview(null);
+                }}
+                className="remove-image-button"
+              >
+                ❌ Remove Image
+              </button>
+            </div>
+          )}
+
+          {!image && (
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="image-input"
+            />
+          )}
+
           <button type="submit" className="tweet-button">
             Tweet
           </button>
@@ -173,8 +227,27 @@ function Home() {
                 </>
               ) : (
                 <>
+
+                <div className="tweet-author">
+                        <img
+                          src="/profile.png"
+                          alt="Avatar"
+                          className="tweet-avatar"
+                        />
+                        <strong className="tweet-username">@{tweet.author_username}</strong>
+                      </div>
+
                   <div className="tweet-content">
                     <p>{tweet.content}</p>
+
+                      {tweet.image && (
+                      <img
+                        src={tweet.image}
+                        alt="Tweet"
+                        className="tweet-image"
+                      />
+                    )}
+
                   </div>
                   <div className="tweet-actions">
                     <button
