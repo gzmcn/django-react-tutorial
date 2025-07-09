@@ -11,6 +11,8 @@ from .serializers import NoteSerializer, CommentSerializer, LikeSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
+import re
+from collections import Counter
 
 class NoteListCreate(generics.ListCreateAPIView):
     serializer_class = NoteSerializer
@@ -91,3 +93,25 @@ def like_note(request):
         like.delete()
         return Response({"liked": False})
     return Response({"liked": True})
+
+
+@api_view(['GET'])
+def trending_hashtags(request):
+    hashtag_pattern = re.compile(r"#\w+")
+    all_notes = Note.objects.all()
+    
+    hashtags = []
+
+    for note in all_notes:
+        content = note.content or ""
+        tags_in_note = hashtag_pattern.findall(content)
+        hashtags.extend([tag.lower() for tag in tags_in_note])
+
+    hashtag_counts = Counter(hashtags)
+    sorted_tags = sorted(
+        [{"tag": tag, "count": count} for tag, count in hashtag_counts.items()],
+        key=lambda x: x["count"],
+        reverse=True
+    )
+
+    return Response(sorted_tags)

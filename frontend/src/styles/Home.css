@@ -286,6 +286,71 @@ h2, h3 {
   text-decoration: underline;
 }
 
+/* main container, ortalama genişlik ve ortalanmış */
+.main-layout {
+  display: flex;
+  justify-content: center; /* yatayda ortala */
+  gap: 2rem;
+  padding: 2rem 1rem;
+  background-color: #15202b;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Sol panel */
+.left-panel {
+  background-color: #192734;
+  border-radius: 16px;
+  padding: 1.5rem;
+  width: 600px; /* genişlik sabit, floating gibi */
+  box-shadow: 0 0 25px rgba(0,0,0,0.7);
+  /* sayfa kenarına yaslanmasın, zaten justify-content: center ile ortalanıyor */
+  max-height: 90vh;
+  overflow-y: auto;
+  scrollbar-width: none; 
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+.left-panel::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
+/* Sağ panel */
+.right-panel {
+  background-color: #192734;
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 0 20px rgba(0,0,0,0.6);
+  max-height: 90vh;
+  overflow-y: auto;
+  /* yükseklik içeriğe göre esnek */
+  align-self: flex-start; /* yukarı hizala */
+  min-width: 280px;
+  max-width: 320px;
+  flex-grow: 1; /* hashtag sayısı artınca genişleyebilir */
+}
+
+.hashtag-panel ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.hashtag-item {
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+}
+
+.hashtag-item a {
+  color: #1da1f2;
+  text-decoration: none;
+}
+
+.hashtag-item a:hover {
+  text-decoration: underline;
+}
+
+
 
 
 
