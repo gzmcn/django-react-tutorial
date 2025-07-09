@@ -6,4 +6,6 @@ CRUD operations on tweets
 
 Commenting and liking tweets
 
+Sending images
+
 Protected routes and token-based authentication (JWT)
